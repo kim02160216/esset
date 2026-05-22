@@ -7,7 +7,7 @@
 <title>Asset Report — 에셋 보고</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard+Variable:wght@300..900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <style>
   :root {
@@ -77,7 +77,6 @@
     line-height: 1.1;
   }
   h1.title span { color: var(--accent); }
-
   .meta-block {
     display: flex;
     flex-direction: column;
@@ -92,7 +91,6 @@
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 2s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-  /* Main layout */
   main { padding: 20px 16px 60px; max-width: 1400px; margin: 0 auto; }
 
   /* Upload card */
@@ -103,110 +101,148 @@
     overflow: hidden;
     margin-bottom: 32px;
   }
-  .drop-zone {
-    padding: 28px 20px;
-    text-align: center;
+
+  .upload-head {
+    padding: 16px 20px;
     border-bottom: 1px solid var(--line);
-    position: relative;
-    transition: background 0.2s;
-    background:
-      repeating-linear-gradient(135deg, transparent 0, transparent 14px, rgba(255,255,255,0.015) 14px, rgba(255,255,255,0.015) 15px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .drop-zone.drag { background-color: var(--accent-soft); }
-  .drop-zone .label {
+  .upload-head .label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--ink-3);
-    margin-bottom: 10px;
     font-weight: 600;
   }
-  .drop-zone .headline {
-    font-size: 17px;
-    line-height: 1.35;
+  .upload-head .progress-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-2);
     font-weight: 600;
-    letter-spacing: -0.01em;
-    margin-bottom: 4px;
   }
-  .drop-zone .sub {
-    color: var(--ink-3);
-    font-size: 12px;
-    line-height: 1.4;
-    margin-bottom: 16px;
-  }
-  .file-input { display: none; }
-  .pick-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 18px;
-    background: var(--ink);
-    color: var(--bg);
-    border: none;
-    border-radius: 999px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.005em;
-    cursor: pointer;
-    transition: transform 0.15s, background 0.15s;
-  }
-  .pick-btn:active { transform: scale(0.96); }
-  .pick-btn:hover { background: var(--accent); color: #fff; }
+  .upload-head .progress-count .filled { color: var(--accent); }
 
-  .preview-row {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    margin-top: 16px;
-    padding: 10px;
+  .slot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--line);
+  }
+  .slot {
+    aspect-ratio: 1;
     background: var(--bg-2);
-    border-radius: 10px;
-    text-align: left;
-  }
-  .preview-row.show { display: flex; }
-  .preview-thumb {
-    width: 56px; height: 56px;
-    object-fit: cover;
-    border-radius: 8px;
-    flex-shrink: 0;
-    background: var(--bg-3);
-  }
-  .preview-info { flex: 1; min-width: 0; }
-  .preview-info .name {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
+    background-image:
+      repeating-linear-gradient(135deg, transparent 0, transparent 14px, rgba(255,255,255,0.018) 14px, rgba(255,255,255,0.018) 15px);
+    position: relative;
+    cursor: pointer;
     overflow: hidden;
-    text-overflow: ellipsis;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
   }
-  .preview-info .size {
+  .slot.drag { background-color: var(--accent-soft); }
+  .slot.has-image { cursor: default; background-image: none; background-color: var(--bg-3); }
+  .slot .slot-num {
+    position: absolute;
+    top: 8px; left: 10px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--ink-3);
-    margin-top: 2px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    z-index: 2;
   }
-  .preview-info .size .arrow { color: var(--ink-4); margin: 0 4px; }
-  .preview-info .size .compressed { color: var(--success); }
-  .preview-info .size .processing { color: var(--accent); }
-  .preview-remove {
-    width: 28px; height: 28px;
+  .slot.has-image .slot-num {
+    color: #fff;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    padding: 3px 7px;
+    border-radius: 999px;
+    font-size: 9px;
+  }
+  .slot .slot-add {
+    color: var(--ink-3);
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 300;
+  }
+  .slot .slot-hint {
+    font-size: 10px;
+    color: var(--ink-3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .slot img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .slot.processing::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,11,0.7);
+    backdrop-filter: blur(2px);
+  }
+  .slot.processing::before {
+    content: '리사이즈 중...';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    z-index: 3;
+  }
+  .slot .slot-remove {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 26px; height: 26px;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    color: #fff;
     border: none;
-    background: var(--bg-3);
-    color: var(--ink-2);
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1;
-    flex-shrink: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background 0.15s;
   }
+  .slot.has-image .slot-remove { display: flex; }
+  .slot .slot-remove:hover { background: var(--accent); }
+  .slot .slot-meta {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 16px 10px 8px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .slot.has-image:hover .slot-meta { opacity: 1; }
 
   .form-zone {
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    border-top: 1px solid var(--line);
   }
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label {
@@ -236,7 +272,6 @@
     border-color: var(--accent);
     background: var(--bg-3);
   }
-
   .submit-btn {
     margin-top: 4px;
     padding: 15px 20px;
@@ -259,7 +294,6 @@
   .submit-btn:active:not(:disabled) { transform: scale(0.98); }
   .submit-btn:hover:not(:disabled) { background: #ff7355; }
   .submit-btn:disabled { background: var(--bg-3); color: var(--ink-4); cursor: not-allowed; }
-
   .status {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -292,93 +326,124 @@
     font-weight: 600;
   }
 
-  /* Gallery */
-  .gallery {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+  /* Project list */
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
-  .card {
+  .project {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 14px;
     overflow: hidden;
-    cursor: pointer;
-    position: relative;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-  .card:active { transform: scale(0.98); }
-  .card:hover { border-color: var(--line-strong); }
-  .thumb {
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: var(--bg-3);
+    transition: border-color 0.2s;
     position: relative;
   }
-  .thumb img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
+  .project:hover { border-color: var(--line-strong); }
+  .project-head {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
   }
-  .card:hover .thumb img { transform: scale(1.05); }
-  .card .info {
-    padding: 10px 12px 12px;
-  }
-  .card .card-title {
-    font-size: 13px;
+  .project-head .h-left { min-width: 0; flex: 1; }
+  .project-head .p-title {
+    font-size: 15px;
     line-height: 1.3;
     font-weight: 600;
     letter-spacing: -0.005em;
+    margin-bottom: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    margin-bottom: 4px;
   }
-  .card .timestamp {
+  .project-head .p-memo {
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.45;
+    margin-bottom: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: pre-wrap;
+  }
+  .project-head .p-timestamp {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
+    font-size: 10px;
     color: var(--ink-3);
     letter-spacing: 0.04em;
     font-weight: 500;
   }
-  .card .del-btn {
-    position: absolute;
-    top: 8px; right: 8px;
-    width: 30px; height: 30px;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #fff;
-    border: none;
-    border-radius: 50%;
+  .project-head .p-del {
+    background: var(--bg-3);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    width: 32px; height: 32px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .card .del-btn:hover, .card .del-btn:active { background: var(--accent); }
+  .project-head .p-del:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .project-images {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+  }
+  .project-images .pimg {
+    aspect-ratio: 1;
+    background: var(--bg-3);
+    overflow: hidden;
+    cursor: zoom-in;
+    position: relative;
+  }
+  .project-images .pimg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .project-images .pimg:hover img { transform: scale(1.05); }
+  .project-images .pimg .badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
 
   .empty {
-    grid-column: 1/-1;
     background: var(--surface);
     border: 1px dashed var(--line-strong);
     border-radius: 14px;
     padding: 48px 24px;
     text-align: center;
   }
-  .empty .big {
-    font-size: 15px;
-    color: var(--ink-2);
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
+  .empty .big { font-size: 15px; color: var(--ink-2); margin-bottom: 6px; font-weight: 500; }
   .empty .small {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
@@ -403,9 +468,18 @@
   .lightbox.show { display: flex; }
   .lb-top {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     padding: 16px;
   }
+  .lb-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-2);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .lb-counter .current { color: var(--accent); font-size: 13px; }
   .lb-close {
     width: 40px; height: 40px;
     background: rgba(255,255,255,0.08);
@@ -423,46 +497,87 @@
   .lb-body {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 0 16px;
-    gap: 20px;
     min-height: 0;
+    position: relative;
   }
   .lb-body img {
     max-width: 100%;
-    max-height: 65vh;
+    max-height: 70vh;
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.8);
   }
-  .lb-info {
+  .lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--line);
+    color: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    z-index: 5;
+  }
+  .lb-nav:hover { background: rgba(255,255,255,0.18); }
+  .lb-prev { left: 16px; }
+  .lb-next { right: 16px; }
+  .lb-bottom {
+    padding: 16px 20px 20px;
     text-align: center;
-    max-width: 600px;
-    padding: 0 8px 16px;
   }
   .lb-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     letter-spacing: -0.01em;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .lb-memo {
     color: var(--ink-2);
     font-size: 13px;
     line-height: 1.5;
     white-space: pre-wrap;
+    max-width: 700px;
+    margin: 0 auto 6px;
   }
   .lb-meta {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--ink-3);
-    margin-top: 8px;
     letter-spacing: 0.05em;
   }
+  .lb-thumbs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .lb-thumbs .lb-thumb {
+    width: 48px; height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s, border-color 0.15s;
+  }
+  .lb-thumbs .lb-thumb.active {
+    border-color: var(--accent);
+    opacity: 1;
+  }
+  .lb-thumbs .lb-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
 
-  /* Loading bar */
   .loading-bar {
     height: 2px;
     background: var(--accent);
@@ -477,42 +592,21 @@
   /* Tablet+ */
   @media (min-width: 640px) {
     main { padding: 28px 24px 80px; }
-    .upload-card {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border-radius: 18px;
-    }
-    .drop-zone {
-      border-bottom: none;
-      border-right: 1px solid var(--line);
-      padding: 32px 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 280px;
-    }
+    .upload-card { border-radius: 18px; }
+    .slot-grid { grid-template-columns: repeat(4, 1fr); }
     .form-zone { padding: 24px; }
     h1.title { font-size: 26px; }
     .section-head h2 { font-size: 22px; }
-    .gallery {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    .card .card-title { font-size: 14px; }
-    .submit-btn { width: auto; align-self: flex-start; padding: 14px 24px; }
+    .submit-btn { width: auto; align-self: flex-start; padding: 14px 28px; }
+    .project-head { padding: 16px 20px; }
+    .project-head .p-title { font-size: 16px; }
+    .lb-body img { max-height: 75vh; }
   }
-
-  /* Desktop */
   @media (min-width: 1024px) {
     header { padding: 24px 32px 20px; }
     main { padding: 32px 32px 100px; }
     h1.title { font-size: 30px; }
     .section-head h2 { font-size: 26px; }
-    .gallery {
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    .drop-zone { min-height: 320px; }
     .lb-body img { max-height: 78vh; }
   }
 </style>
@@ -528,8 +622,8 @@
       <h1 class="title">Asset <span>Report</span></h1>
     </div>
     <div class="meta-block">
-      <div class="status-line"><span class="dot"></span><span id="connStatus">connected</span></div>
-      <div><span class="count" id="itemCount">0</span> items</div>
+      <div class="status-line"><span class="dot"></span><span>connected</span></div>
+      <div><span class="count" id="itemCount">0</span> projects</div>
       <div id="todayDate"></div>
     </div>
   </div>
@@ -538,36 +632,26 @@
 <main>
 
   <section class="upload-card">
-    <div class="drop-zone" id="dropZone">
-      <div class="label">01 — Upload</div>
-      <div class="headline">이미지를 선택하거나<br>여기에 드래그</div>
-      <div class="sub">JPG · PNG · WebP / 자동 리사이즈 (장변 1600px)</div>
-      <input type="file" id="fileInput" class="file-input" accept="image/*">
-      <button type="button" class="pick-btn" id="pickBtn">
-        <span>파일 선택</span>
-        <span>↗</span>
-      </button>
-      <div class="preview-row" id="previewRow">
-        <img class="preview-thumb" id="previewThumb" alt="">
-        <div class="preview-info">
-          <div class="name" id="previewName"></div>
-          <div class="size" id="previewSize"></div>
-        </div>
-        <button class="preview-remove" id="previewRemove" title="제거">×</button>
-      </div>
+    <div class="upload-head">
+      <span class="label">01 — Upload (4장 1세트)</span>
+      <span class="progress-count"><span id="filledCount" class="filled">0</span><span style="color:var(--ink-4)"> / </span>4</span>
+    </div>
+
+    <div class="slot-grid" id="slotGrid">
+      <!-- 4개 슬롯 동적 생성 -->
     </div>
 
     <div class="form-zone">
       <div class="field">
-        <label for="titleInput">Title</label>
-        <input type="text" id="titleInput" placeholder="에셋 제목을 입력하세요" maxlength="200" autocomplete="off">
+        <label for="titleInput">Project Title</label>
+        <input type="text" id="titleInput" placeholder="프로젝트(보고) 제목" maxlength="200" autocomplete="off">
       </div>
       <div class="field">
         <label for="memoInput">Memo</label>
         <textarea id="memoInput" placeholder="간단한 메모 (선택)" maxlength="500"></textarea>
       </div>
       <button class="submit-btn" id="submitBtn" disabled>
-        <span>보고 등록</span>
+        <span>프로젝트 등록</span>
         <span>→</span>
       </button>
       <div class="status" id="status"></div>
@@ -575,30 +659,37 @@
   </section>
 
   <div class="section-head">
-    <h2>Recent <span>uploads</span></h2>
-    <span class="num" id="galleryCount">— 0 ITEMS</span>
+    <h2>Recent <span>projects</span></h2>
+    <span class="num" id="galleryCount">— 0 PROJECTS</span>
   </div>
 
-  <div class="gallery" id="gallery">
+  <div class="project-list" id="projectList">
     <div class="empty">
-      <div class="big">아직 업로드된 에셋이 없습니다</div>
-      <div class="small">First upload will appear here</div>
+      <div class="big">아직 등록된 프로젝트가 없습니다</div>
+      <div class="small">First project will appear here</div>
     </div>
   </div>
 
 </main>
 
+<!-- 숨겨진 file input (재사용) -->
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
 <div class="lightbox" id="lightbox">
   <div class="lb-top">
+    <span class="lb-counter"><span class="current" id="lbCurrent">1</span> / <span id="lbTotal">4</span></span>
     <button class="lb-close" id="lbClose" aria-label="닫기">×</button>
   </div>
   <div class="lb-body">
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="이전">‹</button>
     <img id="lbImg" alt="">
-    <div class="lb-info">
-      <div class="lb-title" id="lbTitle"></div>
-      <div class="lb-memo" id="lbMemo"></div>
-      <div class="lb-meta" id="lbMeta"></div>
-    </div>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="다음">›</button>
+  </div>
+  <div class="lb-bottom">
+    <div class="lb-title" id="lbTitle"></div>
+    <div class="lb-memo" id="lbMemo"></div>
+    <div class="lb-meta" id="lbMeta"></div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
   </div>
 </div>
 
@@ -609,105 +700,207 @@ const SUPABASE_URL = 'https://gsfktzoizwnvvuysdyxj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzZmt0em9pendudnZ1eXNkeXhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwODY2MTgsImV4cCI6MjA5NDY2MjYxOH0.MTtpHG16CWzNstQRXXrWfhNuq3eZ0gC_w8vFWEguk-A';
 const BUCKET = 'asset-reports';
 const TABLE = 'asset_reports';
+const SLOT_COUNT = 4;
 
-// 리사이즈 설정
-const MAX_DIMENSION = 1600;   // 장변 최대 픽셀
-const JPEG_QUALITY = 0.85;    // 0.0 - 1.0
+const MAX_DIMENSION = 1600;
+const JPEG_QUALITY = 0.85;
 const OUTPUT_MIME = 'image/jpeg';
 const OUTPUT_EXT = 'jpg';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let selectedFile = null;
-let items = [];
+// State
+// slots[i] = { blob, previewUrl, width, height, originalSize } | null
+const slots = new Array(SLOT_COUNT).fill(null);
+let projects = [];
+let activeSlotIdx = null; // 현재 파일 선택 중인 슬롯
 
+// Elements
+const slotGrid = document.getElementById('slotGrid');
 const fileInput = document.getElementById('fileInput');
-const pickBtn = document.getElementById('pickBtn');
-const dropZone = document.getElementById('dropZone');
-const previewRow = document.getElementById('previewRow');
-const previewThumb = document.getElementById('previewThumb');
-const previewName = document.getElementById('previewName');
-const previewSize = document.getElementById('previewSize');
-const previewRemove = document.getElementById('previewRemove');
 const titleInput = document.getElementById('titleInput');
 const memoInput = document.getElementById('memoInput');
 const submitBtn = document.getElementById('submitBtn');
 const statusEl = document.getElementById('status');
-const gallery = document.getElementById('gallery');
+const filledCountEl = document.getElementById('filledCount');
+const projectList = document.getElementById('projectList');
 const itemCountEl = document.getElementById('itemCount');
 const galleryCountEl = document.getElementById('galleryCount');
 const todayDateEl = document.getElementById('todayDate');
 const loadingBar = document.getElementById('loadingBar');
+
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lbImg');
 const lbTitle = document.getElementById('lbTitle');
 const lbMemo = document.getElementById('lbMemo');
 const lbMeta = document.getElementById('lbMeta');
+const lbCurrent = document.getElementById('lbCurrent');
+const lbTotal = document.getElementById('lbTotal');
+const lbThumbs = document.getElementById('lbThumbs');
 const lbClose = document.getElementById('lbClose');
+const lbPrev = document.getElementById('lbPrev');
+const lbNext = document.getElementById('lbNext');
 
-const today = new Date();
-todayDateEl.textContent = today.toISOString().slice(0,10).replace(/-/g,'.');
+todayDateEl.textContent = new Date().toISOString().slice(0,10).replace(/-/g,'.');
 
-pickBtn.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+// ---- 슬롯 초기화 ----
+function buildSlots() {
+  slotGrid.innerHTML = '';
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.dataset.idx = String(i);
+    slot.innerHTML = `
+      <span class="slot-num">${String(i+1).padStart(2,'0')}</span>
+      <button class="slot-remove" type="button" aria-label="제거">×</button>
+      <div class="slot-add">+</div>
+      <div class="slot-hint">이미지 추가</div>
+    `;
+    slotGrid.appendChild(slot);
 
-['dragover','dragenter'].forEach(ev => {
-  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag'); });
-});
-['dragleave','drop'].forEach(ev => {
-  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('drag'); });
-});
-dropZone.addEventListener('drop', e => {
-  const f = e.dataTransfer.files[0];
-  if (f) handleFile(f);
-});
-
-previewRemove.addEventListener('click', () => {
-  selectedFile = null;
-  fileInput.value = '';
-  previewRow.classList.remove('show');
-  previewThumb.src = '';
-  updateSubmitState();
-  setStatus('');
-});
-
-function handleFile(file) {
-  if (!file) return;
-  if (!file.type.startsWith('image/')) { setStatus('이미지 파일만 업로드 가능합니다.', 'error'); return; }
-  if (file.size > 50 * 1024 * 1024) { setStatus('원본 파일은 50MB 이하여야 합니다.', 'error'); return; }
-
-  const originalSize = file.size;
-
-  // 즉시 미리보기 (원본 기준)
-  const reader = new FileReader();
-  reader.onload = e => {
-    previewThumb.src = e.target.result;
-    previewName.textContent = file.name;
-    previewSize.innerHTML = `${formatBytes(originalSize)} <span class="processing">→ 리사이즈 중...</span>`;
-    previewRow.classList.add('show');
-  };
-  reader.readAsDataURL(file);
-
-  // 백그라운드에서 리사이즈
-  resizeImage(file)
-    .then(({ blob, width, height }) => {
-      selectedFile = blob;
-      selectedFile.originalName = file.name;
-      selectedFile.dimensions = `${width}×${height}`;
-      const ratio = ((1 - blob.size / originalSize) * 100).toFixed(0);
-      previewSize.innerHTML = `${formatBytes(originalSize)}<span class="arrow">→</span><span class="compressed">${formatBytes(blob.size)} (${ratio}% ↓ · ${width}×${height})</span>`;
-      updateSubmitState();
-      setStatus('');
-    })
-    .catch(err => {
-      console.error(err);
-      setStatus('이미지 처리 실패: ' + err.message, 'error');
-      previewRow.classList.remove('show');
-      selectedFile = null;
-      updateSubmitState();
+    slot.addEventListener('click', e => {
+      if (e.target.closest('.slot-remove')) return;
+      if (slots[i]) return; // 이미 있으면 클릭 무시 (제거 후 다시 선택)
+      activeSlotIdx = i;
+      fileInput.click();
     });
+
+    // 드래그앤드롭 (슬롯별)
+    ['dragover','dragenter'].forEach(ev => {
+      slot.addEventListener(ev, e => { e.preventDefault(); slot.classList.add('drag'); });
+    });
+    ['dragleave','drop'].forEach(ev => {
+      slot.addEventListener(ev, e => { e.preventDefault(); slot.classList.remove('drag'); });
+    });
+    slot.addEventListener('drop', e => {
+      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      if (files.length === 0) return;
+      // 드롭한 슬롯부터 빈 슬롯에 순차 채움
+      distributeFiles(files, i);
+    });
+
+    slot.querySelector('.slot-remove').addEventListener('click', e => {
+      e.stopPropagation();
+      clearSlot(i);
+    });
+  }
 }
 
+function distributeFiles(files, startIdx) {
+  // 여러 파일을 startIdx부터 빈 슬롯에 순차 배치
+  let cursor = startIdx;
+  for (const f of files) {
+    // 다음 빈 슬롯 찾기 (cursor부터)
+    while (cursor < SLOT_COUNT && slots[cursor]) cursor++;
+    if (cursor >= SLOT_COUNT) {
+      setStatus('빈 슬롯이 부족합니다 (최대 4장)', 'error');
+      break;
+    }
+    loadIntoSlot(cursor, f);
+    cursor++;
+  }
+}
+
+fileInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  if (files.length === 0) return;
+  if (activeSlotIdx === null) return;
+  // 다중 선택도 지원: 선택한 슬롯부터 채움
+  distributeFiles(files, activeSlotIdx);
+  fileInput.value = '';
+  activeSlotIdx = null;
+});
+
+// 다중 선택 가능하게
+fileInput.setAttribute('multiple', '');
+
+async function loadIntoSlot(idx, file) {
+  if (!file.type.startsWith('image/')) {
+    setStatus('이미지 파일만 업로드 가능합니다.', 'error');
+    return;
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    setStatus('파일은 50MB 이하여야 합니다.', 'error');
+    return;
+  }
+
+  const slotEl = slotGrid.children[idx];
+  slotEl.classList.add('processing', 'has-image');
+  // 임시 미리보기 (원본)
+  const tempUrl = URL.createObjectURL(file);
+  renderSlotImage(idx, tempUrl, null);
+
+  try {
+    const { blob, width, height } = await resizeImage(file);
+    const previewUrl = URL.createObjectURL(blob);
+    slots[idx] = {
+      blob,
+      previewUrl,
+      width,
+      height,
+      originalSize: file.size,
+    };
+    URL.revokeObjectURL(tempUrl);
+    renderSlotImage(idx, previewUrl, slots[idx]);
+    slotEl.classList.remove('processing');
+    updateSubmitState();
+    setStatus('');
+  } catch (e) {
+    console.error(e);
+    setStatus('이미지 처리 실패: ' + e.message, 'error');
+    slotEl.classList.remove('processing', 'has-image');
+    slotEl.innerHTML = baseSlotHTML(idx);
+    rebindSlot(idx);
+  }
+}
+
+function renderSlotImage(idx, url, meta) {
+  const slotEl = slotGrid.children[idx];
+  let metaText = '';
+  if (meta) {
+    const ratio = ((1 - meta.blob.size / meta.originalSize) * 100).toFixed(0);
+    metaText = `${formatBytes(meta.originalSize)} → ${formatBytes(meta.blob.size)} (${ratio}%↓)<br>${meta.width}×${meta.height}`;
+  }
+  slotEl.innerHTML = `
+    <span class="slot-num">${String(idx+1).padStart(2,'0')}</span>
+    <button class="slot-remove" type="button" aria-label="제거">×</button>
+    <img src="${url}" alt="slot ${idx+1}">
+    <div class="slot-meta">${metaText}</div>
+  `;
+  rebindSlot(idx);
+}
+
+function baseSlotHTML(idx) {
+  return `
+    <span class="slot-num">${String(idx+1).padStart(2,'0')}</span>
+    <button class="slot-remove" type="button" aria-label="제거">×</button>
+    <div class="slot-add">+</div>
+    <div class="slot-hint">이미지 추가</div>
+  `;
+}
+
+function rebindSlot(idx) {
+  const slotEl = slotGrid.children[idx];
+  const removeBtn = slotEl.querySelector('.slot-remove');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      clearSlot(idx);
+    });
+  }
+}
+
+function clearSlot(idx) {
+  if (slots[idx] && slots[idx].previewUrl) URL.revokeObjectURL(slots[idx].previewUrl);
+  slots[idx] = null;
+  const slotEl = slotGrid.children[idx];
+  slotEl.classList.remove('has-image', 'processing');
+  slotEl.innerHTML = baseSlotHTML(idx);
+  rebindSlot(idx);
+  updateSubmitState();
+}
+
+// ---- 리사이즈 ----
 function resizeImage(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -716,96 +909,101 @@ function resizeImage(file) {
       URL.revokeObjectURL(url);
       try {
         let { width, height } = img;
-        // 장변이 MAX_DIMENSION 이하면 그대로
         const longSide = Math.max(width, height);
         if (longSide > MAX_DIMENSION) {
           const scale = MAX_DIMENSION / longSide;
           width = Math.round(width * scale);
           height = Math.round(height * scale);
         }
-
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
-        // JPEG는 투명 배경을 검정으로 처리하므로 흰색으로 채움
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
-        // 부드러운 다운샘플링
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
-
         canvas.toBlob(blob => {
           if (!blob) return reject(new Error('Canvas 변환 실패'));
           resolve({ blob, width, height });
         }, OUTPUT_MIME, JPEG_QUALITY);
       } catch (e) { reject(e); }
     };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('이미지를 읽을 수 없습니다'));
-    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이미지를 읽을 수 없습니다')); };
     img.src = url;
   });
 }
 
-function formatBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1024*1024) return (b/1024).toFixed(0) + ' KB';
-  return (b/1024/1024).toFixed(1) + ' MB';
-}
-
+// ---- 제출 ----
 titleInput.addEventListener('input', updateSubmitState);
 
 function updateSubmitState() {
-  submitBtn.disabled = !(selectedFile && titleInput.value.trim());
+  const filled = slots.filter(s => s !== null).length;
+  filledCountEl.textContent = filled;
+  submitBtn.disabled = !(filled === SLOT_COUNT && titleInput.value.trim());
 }
 
-function setStatus(msg, type = '') {
+function setStatus(msg, type='') {
   statusEl.textContent = msg;
   statusEl.className = 'status' + (type ? ' ' + type : '');
 }
-
 function setProgress(pct) {
   loadingBar.style.width = pct + '%';
   if (pct >= 100) setTimeout(() => loadingBar.style.width = '0%', 400);
 }
 
 submitBtn.addEventListener('click', async () => {
-  if (!selectedFile || !titleInput.value.trim()) return;
+  const filled = slots.filter(s => s !== null).length;
+  if (filled !== SLOT_COUNT) { setStatus('이미지 4장을 모두 채워야 합니다.', 'error'); return; }
+  if (!titleInput.value.trim()) { setStatus('제목을 입력하세요.', 'error'); return; }
+
   submitBtn.disabled = true;
   setStatus('업로드 중...');
-  setProgress(20);
+  setProgress(10);
 
   try {
-    const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${OUTPUT_EXT}`;
-    const filePath = `${new Date().toISOString().slice(0,10)}/${fileName}`;
+    const datePrefix = new Date().toISOString().slice(0,10);
+    const groupId = `${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+    const uploadedImages = [];
 
-    setProgress(40);
-    const { error: upErr } = await supabase.storage
-      .from(BUCKET)
-      .upload(filePath, selectedFile, { cacheControl: '3600', upsert: false, contentType: OUTPUT_MIME });
-    if (upErr) throw upErr;
+    for (let i = 0; i < SLOT_COUNT; i++) {
+      const slot = slots[i];
+      const fileName = `${groupId}_${i+1}.${OUTPUT_EXT}`;
+      const filePath = `${datePrefix}/${fileName}`;
 
-    setProgress(70);
-    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+      const { error: upErr } = await supabase.storage
+        .from(BUCKET)
+        .upload(filePath, slot.blob, { cacheControl: '3600', upsert: false, contentType: OUTPUT_MIME });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+      uploadedImages.push({
+        url: urlData.publicUrl,
+        path: filePath,
+        w: slot.width,
+        h: slot.height,
+      });
+
+      setProgress(10 + ((i+1) / SLOT_COUNT) * 70);
+    }
 
     const { error: insErr } = await supabase.from(TABLE).insert({
       title: titleInput.value.trim(),
       memo: memoInput.value.trim() || null,
-      image_url: urlData.publicUrl,
-      image_path: filePath,
+      images: uploadedImages,
+      // 호환용 컬럼은 첫 이미지로 채움
+      image_url: uploadedImages[0].url,
+      image_path: uploadedImages[0].path,
     });
     if (insErr) throw insErr;
 
     setProgress(100);
-    setStatus('업로드 완료 ✓', 'success');
+    setStatus('프로젝트 등록 완료 ✓', 'success');
     resetForm();
-    await loadItems();
+    await loadProjects();
   } catch (e) {
     console.error(e);
-    setStatus('업로드 실패: ' + (e.message || e), 'error');
+    setStatus('등록 실패: ' + (e.message || e), 'error');
     setProgress(0);
   } finally {
     submitBtn.disabled = false;
@@ -814,23 +1012,28 @@ submitBtn.addEventListener('click', async () => {
 });
 
 function resetForm() {
-  selectedFile = null;
-  fileInput.value = '';
+  for (let i = 0; i < SLOT_COUNT; i++) clearSlot(i);
   titleInput.value = '';
   memoInput.value = '';
-  previewRow.classList.remove('show');
-  previewThumb.src = '';
 }
 
-async function loadItems() {
+// ---- 목록 ----
+async function loadProjects() {
   try {
     const { data, error } = await supabase
       .from(TABLE)
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    items = data || [];
-    renderGallery();
+    // images 컬럼이 비어 있는 옛 데이터는 image_url/image_path로 단일 이미지 변환
+    projects = (data || []).map(row => {
+      let images = row.images;
+      if (!images && row.image_url) {
+        images = [{ url: row.image_url, path: row.image_path }];
+      }
+      return { ...row, images: images || [] };
+    });
+    renderProjects();
   } catch (e) {
     console.error(e);
     setStatus('목록 로드 실패: ' + e.message, 'error');
@@ -839,12 +1042,7 @@ async function loadItems() {
 
 function fmtDate(iso) {
   const d = new Date(iso);
-  const Y = d.getFullYear();
-  const M = String(d.getMonth()+1).padStart(2,'0');
-  const D = String(d.getDate()).padStart(2,'0');
-  const h = String(d.getHours()).padStart(2,'0');
-  const m = String(d.getMinutes()).padStart(2,'0');
-  return `${Y}.${M}.${D} ${h}:${m}`;
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
 function escapeHtml(s) {
@@ -852,55 +1050,68 @@ function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function renderGallery() {
-  itemCountEl.textContent = items.length;
-  galleryCountEl.textContent = `— ${items.length} ITEM${items.length === 1 ? '' : 'S'}`;
+function renderProjects() {
+  itemCountEl.textContent = projects.length;
+  galleryCountEl.textContent = `— ${projects.length} PROJECT${projects.length === 1 ? '' : 'S'}`;
 
-  if (items.length === 0) {
-    gallery.innerHTML = `
+  if (projects.length === 0) {
+    projectList.innerHTML = `
       <div class="empty">
-        <div class="big">아직 업로드된 에셋이 없습니다</div>
-        <div class="small">First upload will appear here</div>
+        <div class="big">아직 등록된 프로젝트가 없습니다</div>
+        <div class="small">First project will appear here</div>
       </div>`;
     return;
   }
 
-  gallery.innerHTML = items.map((item) => `
-    <div class="card" data-id="${item.id}">
-      <button class="del-btn" data-del="${item.id}" data-path="${escapeHtml(item.image_path)}" aria-label="삭제">×</button>
-      <div class="thumb"><img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy"></div>
-      <div class="info">
-        <div class="card-title">${escapeHtml(item.title)}</div>
-        <div class="timestamp">${fmtDate(item.created_at)}</div>
+  projectList.innerHTML = projects.map(p => `
+    <article class="project" data-id="${p.id}">
+      <div class="project-head">
+        <div class="h-left">
+          <div class="p-title">${escapeHtml(p.title)}</div>
+          ${p.memo ? `<div class="p-memo">${escapeHtml(p.memo)}</div>` : ''}
+          <div class="p-timestamp">${fmtDate(p.created_at)} · ${p.images.length}장</div>
+        </div>
+        <button class="p-del" data-del="${p.id}" aria-label="삭제">×</button>
       </div>
-    </div>
+      <div class="project-images">
+        ${p.images.map((img, i) => `
+          <div class="pimg" data-pid="${p.id}" data-imgidx="${i}">
+            <span class="badge">${String(i+1).padStart(2,'0')}</span>
+            <img src="${escapeHtml(img.url)}" alt="${escapeHtml(p.title)} ${i+1}" loading="lazy">
+          </div>
+        `).join('')}
+      </div>
+    </article>
   `).join('');
 
-  gallery.querySelectorAll('.card').forEach(c => {
-    c.addEventListener('click', e => {
-      if (e.target.closest('.del-btn')) return;
-      const id = c.dataset.id;
-      const item = items.find(x => x.id === id);
-      if (item) openLightbox(item);
+  // 이벤트 바인딩
+  projectList.querySelectorAll('.pimg').forEach(el => {
+    el.addEventListener('click', () => {
+      const pid = el.dataset.pid;
+      const imgIdx = parseInt(el.dataset.imgidx, 10);
+      const project = projects.find(p => p.id === pid);
+      if (project) openLightbox(project, imgIdx);
     });
   });
-  gallery.querySelectorAll('.del-btn').forEach(b => {
+  projectList.querySelectorAll('.p-del').forEach(b => {
     b.addEventListener('click', async e => {
       e.stopPropagation();
       const id = b.dataset.del;
-      const path = b.dataset.path;
-      if (!confirm('이 에셋을 삭제하시겠습니까?')) return;
-      await deleteItem(id, path);
+      const p = projects.find(x => x.id === id);
+      if (!p) return;
+      if (!confirm(`"${p.title}" 프로젝트를 삭제하시겠습니까? (이미지 ${p.images.length}장 포함)`)) return;
+      await deleteProject(p);
     });
   });
 }
 
-async function deleteItem(id, path) {
+async function deleteProject(p) {
   try {
-    await supabase.storage.from(BUCKET).remove([path]);
-    const { error } = await supabase.from(TABLE).delete().eq('id', id);
+    const paths = p.images.map(i => i.path).filter(Boolean);
+    if (paths.length > 0) await supabase.storage.from(BUCKET).remove(paths);
+    const { error } = await supabase.from(TABLE).delete().eq('id', p.id);
     if (error) throw error;
-    await loadItems();
+    await loadProjects();
     setStatus('삭제됨', 'success');
   } catch (e) {
     console.error(e);
@@ -908,29 +1119,92 @@ async function deleteItem(id, path) {
   }
 }
 
-function openLightbox(item) {
-  lbImg.src = item.image_url;
-  lbTitle.textContent = item.title;
-  lbMemo.textContent = item.memo || '';
-  lbMeta.textContent = fmtDate(item.created_at);
+// ---- Lightbox ----
+let lbProject = null;
+let lbIdx = 0;
+
+function openLightbox(project, idx) {
+  lbProject = project;
+  lbIdx = idx;
+  lbTotal.textContent = project.images.length;
+  lbTitle.textContent = project.title;
+  lbMemo.textContent = project.memo || '';
+  lbMeta.textContent = fmtDate(project.created_at);
+  renderLbThumbs();
+  showLbImage();
   lightbox.classList.add('show');
   document.body.style.overflow = 'hidden';
+}
+function showLbImage() {
+  if (!lbProject) return;
+  const img = lbProject.images[lbIdx];
+  lbImg.src = img.url;
+  lbCurrent.textContent = lbIdx + 1;
+  lbThumbs.querySelectorAll('.lb-thumb').forEach((t, i) => {
+    t.classList.toggle('active', i === lbIdx);
+  });
+}
+function renderLbThumbs() {
+  lbThumbs.innerHTML = lbProject.images.map((img, i) => `
+    <div class="lb-thumb${i === lbIdx ? ' active' : ''}" data-i="${i}">
+      <img src="${escapeHtml(img.url)}" alt="">
+    </div>
+  `).join('');
+  lbThumbs.querySelectorAll('.lb-thumb').forEach(t => {
+    t.addEventListener('click', () => {
+      lbIdx = parseInt(t.dataset.i, 10);
+      showLbImage();
+    });
+  });
+}
+function lbNavigate(dir) {
+  if (!lbProject) return;
+  const total = lbProject.images.length;
+  lbIdx = (lbIdx + dir + total) % total;
+  showLbImage();
 }
 function closeLightbox() {
   lightbox.classList.remove('show');
   document.body.style.overflow = '';
+  lbProject = null;
 }
 lbClose.addEventListener('click', closeLightbox);
+lbPrev.addEventListener('click', () => lbNavigate(-1));
+lbNext.addEventListener('click', () => lbNavigate(1));
 lightbox.addEventListener('click', e => {
-  if (e.target === lightbox || e.target.classList.contains('lb-body') || e.target.classList.contains('lb-top')) closeLightbox();
+  if (e.target === lightbox || e.target.classList.contains('lb-body')) closeLightbox();
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('show')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') lbNavigate(-1);
+  if (e.key === 'ArrowRight') lbNavigate(1);
+});
 
-loadItems();
+// 터치 스와이프 (모바일)
+let touchStartX = null;
+lightbox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+lightbox.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) lbNavigate(dx > 0 ? -1 : 1);
+  touchStartX = null;
+}, { passive: true });
+
+// ---- Helpers ----
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return (b/1024).toFixed(0) + ' KB';
+  return (b/1024/1024).toFixed(1) + ' MB';
+}
+
+// ---- Init ----
+buildSlots();
+loadProjects();
 
 supabase
   .channel('asset_reports_channel')
-  .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, () => loadItems())
+  .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, () => loadProjects())
   .subscribe();
 </script>
 
